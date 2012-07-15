@@ -1,6 +1,24 @@
 ActiveRecord::Migration.verbose = false
 
 ActiveRecord::Schema.define do
+  create_table "article_translations", :force => true do |t|
+    t.integer  "article_id"
+    t.string   "locale"
+    t.string   "title"
+    t.text     "body"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.text     "body_html"
+  end
+
+  add_index "article_translations", ["article_id"], :name => "index_article_translations_on_article_id"
+  add_index "article_translations", ["locale"], :name => "index_article_translations_on_locale"
+
+  create_table "articles", :force => true do |t|
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table :translations, :force => true do |t|
     t.string   :blah
   end

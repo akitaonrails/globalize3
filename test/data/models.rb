@@ -2,6 +2,33 @@
 class Translation < ActiveRecord::Base
 end
 
+class Article < ActiveRecord::Base
+  attr_accessible :body, :body_html, :title, :locale, :translations_attributes
+
+  translates :title, :body, :body_html
+  accepts_nested_attributes_for :translations
+
+  before_save :generate_html
+
+  class Translation
+    attr_accessible :locale, :title, :body, :body_html
+  end
+
+  def translations_attributes=(attributes)
+    new_translations = attributes.values.reduce({}) do |new_values, translation|
+      translation.merge!("body_html" => RDiscount.new(translation["body"] || "").to_html )
+      new_values.merge! translation.delete("locale") => translation
+    end
+    set_translations new_translations
+  end
+
+private
+  def generate_html
+    self.body_html = RDiscount.new(self.body || "").to_html
+  end
+end
+
+
 class Post < ActiveRecord::Base
   translates :title, :content, :published, :published_at, :versioning => true
   validates_presence_of :title
